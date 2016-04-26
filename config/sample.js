@@ -7,7 +7,7 @@ config = module.exports = {
 	slack: {
 		channel: '#crowdfunding',
 		token: 'xoxp-your-token-here',
-		usernmae: 'KSBOT',
+		username: 'KSBOT',
 		message: 'Kickstarter update: ${BACKERS} backers and $${PLEDGED} pledged!',
 		iconEmoji: ':tophat:'
 	},
