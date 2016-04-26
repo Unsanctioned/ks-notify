@@ -9,7 +9,7 @@ const STATUS_MESSAGE=config.slack.message || ':tophat: Kickstarter update: ${BAC
 function post_slack_message(backers, pledged) {
 	var msg = STATUS_MESSAGE.replace('${BACKERS}', backers);
 	msg = msg.replace('${PLEDGED}', pledged);
-	request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':config.slack.channel,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.iconEmoje}}, function(error, response, body) {
+	request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':config.slack.channel,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.iconEmoji}}, function(error, response, body) {
 	});
 }
 
