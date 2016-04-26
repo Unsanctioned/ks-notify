@@ -12,11 +12,11 @@ config = module.exports = {
 		// Name of the bot that posts messages
 		username: 'KSBOT',
 		// Message text to post when a trigger level is hit - blank for no message
-		message: 'Kickstarter update: ${BACKERS} backers and $${PLEDGED} pledged!',
+		message: 'Kickstarter update: ${BACKERS} backers and ${PLEDGED} pledged!',
 		// emoji to use as the bot's icon
 		iconEmoji: ':tophat:',
 		// Topic text - if blank, topic is not set
-		topic: 'Campaign: ${BACKERS} backers, $${PLEDGED} pledged!',
+		topic: 'Campaign: ${BACKERS} backers, ${PLEDGED} pledged!',
 		// Is the topic updated on every run (false = updated when a target is hit)
 		alwaysUpdateTopic: false
 	},

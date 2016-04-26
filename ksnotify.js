@@ -1,6 +1,7 @@
 const request  = require('request'),
       jsonfile = require('jsonfile'),
       fs       = require('fs'),
+      numeral  = require('numeral'),
       config   = require('./config');
 
 const STATUS_FILE='/tmp/' + config.projectName + '.status.json';
@@ -99,17 +100,18 @@ function check(status) {
 							// Ignored - less than target amount or already triggered
 						}
 					}
+					var pledged_currency = numeral(project.pledged).format('$0,0.00'); // TODO: currency symbol based on currency code
 					if (sendUpdate) {
 						jsonfile.writeFile(STATUS_FILE, status, function(err) {
 							if (err) {
 								// error writing status file
 								console.log('ERROR: failed to save status file');
 							} else {
-								post_notifications(project.backers_count, project.pledged);
+								post_notifications(project.backers_count, pledged_currency);
 							}
 						});
 					} else if (config.slack.alwaysUpdateTopic) {
-						set_slack_channel_topic(project.backers_count, project.pledged);
+						set_slack_channel_topic(project.backers_count, pledged_currency);
 					}
 				} else {
 					// Ignore project that isn't the one we're watching
