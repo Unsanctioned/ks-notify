@@ -1,0 +1,16 @@
+{
+  "name": "ks-notify",
+  "version": "0.1.0",
+  "description": "Parse kickstarter data and trigger notifications",
+  "main": "ksnotify.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "0.0.2",
+    "jsonfile": "^2.3.0",
+    "request": "^2.72.0"
+  }
+}
