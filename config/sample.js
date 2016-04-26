@@ -5,11 +5,20 @@ config = module.exports = {
 	// Kickstarter project ID
 	projectId: 000000000,
 	slack: {
-		channel: '#crowdfunding',
+		// The channel that should receive notifications / topic updates
+		channel: 'crowdfunding',
+		// Slack web API token
 		token: 'xoxp-your-token-here',
+		// Name of the bot that posts messages
 		username: 'KSBOT',
+		// Message text to post when a trigger level is hit - blank for no message
 		message: 'Kickstarter update: ${BACKERS} backers and $${PLEDGED} pledged!',
-		iconEmoji: ':tophat:'
+		// emoji to use as the bot's icon
+		iconEmoji: ':tophat:',
+		// Topic text - if blank, topic is not set
+		topic: 'Campaign: ${BACKERS} backers, $${PLEDGED} pledged!',
+		// Is the topic updated on every run (false = updated when a target is hit)
+		alwaysUpdateTopic: false
 	},
 	// pledge targets for notifications
 	pledgeTargets: [

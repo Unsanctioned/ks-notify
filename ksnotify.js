@@ -4,13 +4,70 @@ const request  = require('request'),
       config   = require('./config');
 
 const STATUS_FILE='/tmp/' + config.projectName + '.status.json';
-const STATUS_MESSAGE=config.slack.message || ':tophat: Kickstarter update: ${BACKERS} backers, $${PLEDGED} pledged!'
+
+function get_slack_channel_id(channel_name, callback) {
+	request.post('https://slack.com/api/channels.list', {form:{'token':config.slack.token,'exclude_archived':1}, json:true}, function(error, response, body) {
+		if (error) {
+			callback(error);
+		} else if (response.statusCode != 200) {
+			callback('Unable to retrieve channel');
+		} else if (body.ok != true) {
+			callback(body.error);
+		} else {
+			for (var idx in body.channels) {
+				var channel = body.channels[idx];
+				if (channel.name == channel_name) {
+					callback(null, channel.id);
+					return;
+				}
+			}
+			callback('Channel not found');
+		}
+	});
+}
 
 function post_slack_message(backers, pledged) {
-	var msg = STATUS_MESSAGE.replace('${BACKERS}', backers);
+	if (!config.slack.message)
+	{
+		return;
+	}
+	var msg = config.slack.message.replace('${BACKERS}', backers);
 	msg = msg.replace('${PLEDGED}', pledged);
-	request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':config.slack.channel,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.iconEmoji}}, function(error, response, body) {
+	get_slack_channel_id(config.slack.channel, function(err, channel_id) {
+		if (err) {
+			console.log('Failed to retrieve slack channel: ' + err);
+		} else {
+			request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':channel_id,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.iconEmoji}}, function(error, response, body) {
+			});
+		}
 	});
+}
+
+function set_slack_channel_topic(backers, pledged) {
+	if (!config.slack.topic)
+	{
+		return;
+	}
+	var msg = config.slack.topic.replace('${BACKERS}', backers);
+	msg = msg.replace('${PLEDGED}', pledged);
+	get_slack_channel_id(config.slack.channel, function(err, channel_id) {
+		if (err) {
+			console.log('Failed to retrieve slack channel: ' + err);
+		} else {
+			request.post('https://slack.com/api/channels.setTopic', {form:{'token':config.slack.token,'channel':channel_id,'topic':msg}}, function(error, response, body) {
+				if (error) {
+					console.log('ERROR: failed to set slack topic: ' + error);
+				} else if (response.statusCode != 200) {
+					console.log('ERROR: failed to set slakc topic: ' + body);
+				}
+			});
+		}
+	});
+}
+
+function post_notifications(backers, pledged) {
+	post_slack_message(backers, pledged);
+	set_slack_channel_topic(backers, pledged);
 }
 
 function check(status) {
@@ -25,7 +82,7 @@ function check(status) {
 					for (idx in config.backerTargets) {
 						var backer_target = config.backerTargets[idx];
 						if (project.backers_count >= backer_target && status.backers < backer_target) {
-							console.log("Hit backer target at " + project.backers_count + " for target " + backer_target);
+							//console.log("Hit backer target at " + project.backers_count + " for target " + backer_target);
 							status.backers = project.backers_count;
 							sendUpdate = true;
 						} else {
@@ -35,7 +92,7 @@ function check(status) {
 					for (idx in config.pledgeTargets) {
 						var pledge_target = config.pledgeTargets[idx];
 						if (project.pledged >= pledge_target && status.pledged < pledge_target) {
-							console.log("Hit pledge target at " + project.pledged + " for target " + pledge_target);
+							//console.log("Hit pledge target at " + project.pledged + " for target " + pledge_target);
 							status.pledged = project.pledged;
 							sendUpdate = true;
 						} else {
@@ -48,9 +105,11 @@ function check(status) {
 								// error writing status file
 								console.log('ERROR: failed to save status file');
 							} else {
-								post_slack_message(project.backers_count, project.pledged);
+								post_notifications(project.backers_count, project.pledged);
 							}
 						});
+					} else if (config.slack.alwaysUpdateTopic) {
+						set_slack_channel_topic(project.backers_count, project.pledged);
 					}
 				} else {
 					// Ignore project that isn't the one we're watching
@@ -67,7 +126,7 @@ function check(status) {
 function main() {
 	fs.access(STATUS_FILE, fs.R_OK, (err) => {
 		if (err) {
-			console.log("No status file - creating " + STATUS_FILE);
+			//console.log("No status file - creating " + STATUS_FILE);
 			// file doesn't exist
 			obj = {'backers' : 0, 'pledged' : 0};
 			jsonfile.writeFile(STATUS_FILE, obj, function(err) {
