@@ -22,20 +22,20 @@ config = module.exports = {
 	},
 	// pledge targets for notifications
 	pledgeTargets: [
-		10000.00,
-		25000.00,
-		50000.00,
-		100000.00,
-		150000.00,
-		200000.00,
-		500000.00,
-		1000000,00
+		{amount: 10000.00, message: 'DEFAULT'},
+		{amount: 25000.00, message: 'DEFAULT'},
+		{amount: 50000.00},
+		{amount: 100000.00, message: 'Kickstarter update: ${PLEDGED} pledged!', topic: 'Campaign: ${BACKERS} backers, ${PLEDGED} pledged'},
+		{amount: 150000.00, message: 'DEFAULT'},
+		{amount: 200000.00, message: 'DEFAULT'},
+		{amount: 500000.00, message: 'DEFAULT'},
+		{amount: 1000000.00, message: 'FUNDED! ${PLEDGED} pledged, ${BACKERS} backers!', topic: 'CAMPAIGN FUNDED!!!'}
 	],
 	// backer targets for notifications
 	backerTargets: [
-		100,
-		1000,
-		10000,
-		100000
+		{count: 100, message: 'Backer update: ${BACKERS}'},
+		{count: 1000, message: 'Backer update: ${BACKERS}'},
+		{count: 10000, message: 'Backer update: ${BACKERS}'},
+		{count: 100000 message: 'Backer update: ${BACKERS}', topic: 'DEFAULT'}
 	]
 }
