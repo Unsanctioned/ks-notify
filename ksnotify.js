@@ -38,7 +38,7 @@ function post_slack_message(msg, backers, pledged) {
 		if (err) {
 			console.log('Failed to retrieve slack channel: ' + err);
 		} else {
-			request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':channel_id,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.iconEmoji}}, function(error, response, body) {
+			request.post('https://slack.com/api/chat.postMessage', {form:{'token':config.slack.token,'channel':channel_id,'text':msg, 'as_user':false, 'username':config.slack.username, 'icon_emoji':config.slack.iconEmoji}}, function(error, response, body) {
 			});
 		}
 	});
