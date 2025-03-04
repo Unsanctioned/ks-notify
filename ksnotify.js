@@ -3,45 +3,20 @@ const request  = require('request'),
       fs       = require('fs'),
       numeral  = require('numeral'),
       config   = require('./config');
+      slack    = require('./lib/slack');
 
 const STATUS_FILE='/tmp/' + config.projectName.replace('/', '_') + '.status.json';
 
-function post_slack_message(msg, backers, pledged) {
-	if (!msg)
-	{
-		return;
-	}
-	msg = msg.replace('${BACKERS}', backers);
-	msg = msg.replace('${PLEDGED}', pledged);
-
-	// use webhook
-	let webhook_payload = {
-		'text': msg,
-		'username': config.slack.username,
-		'channel': config.slack.channel,
-		'icon_emoji': config.slack.iconEmoji
-	};
-	request.post({url: config.slack.webhook_url, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(webhook_payload)}, function(error, response, body) {
-		if (!error) {
-			if (response.statusCode != 200) {
-				console.log(`Response headers: ${JSON.stringify(response.headers)}`);
-				console.log(`Response body: ${response.body}`);
-			} else {
-				console.log(`Slack status response: ${response.statusCode} ${response.statusMessage}`);
-			}
-		} else {
-			console.log(`Slack posting error: ${error}`);
-		}
-
-	});
-}
-
 function post_notifications(pledgeMessage, backerMessage, backers, pledged) {
 	if (pledgeMessage != '') {
-		post_slack_message(pledgeMessage, backers, pledged);
+		let msg = pledgeMessage.replace('${BACKERS}', backers);
+		msg = msg.replace('${PLEDGED}', pledged);
+		slack.post_message(msg);
 	}
 	if (backerMessage) {
-		post_slack_message(backerMessage, backers, pledged);
+		let msg = backerMessage.replace('${BACKERS}', backers);
+		msg = msg.replace('${PLEDGED}', pledged);
+		slack.post_message(msg);
 	}
 }
 
@@ -52,6 +27,11 @@ function process_response(status, body) {
 		var backerUpdateMessage = '';
 		var idx = 0;
 		var pledged_currency = numeral(project.pledged).format('$0,0.00'); // TODO: currency symbol based on currency code
+		for (let arg of process.argv) {
+			if (arg === '--force') {
+				post_notifications(config.slack.message, '', project.backers_count, pledged_currency);
+			}
+		}
 		for (idx in config.backerTargets) {
 			var backer_target = config.backerTargets[idx];
 			if (project.backers_count >= backer_target.count && status.backers < backer_target.count) {

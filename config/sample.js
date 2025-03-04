@@ -7,8 +7,11 @@ config = module.exports = {
 	// Kickstarter project ID
 	projectId: 000000000,
 	slack: {
+		// Use *either* webhook_url OR token, but not both. If both are specified, it will use the webhook
 		// The webhoook URL for the slack custom integration
 		webhook_url: 'https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXXX/xxxxxxxxxxxxxxxxxxxx',
+		// The slack token to use for token-based authentication rather than webhook
+		token: 'xoxb-xxxxxxxxxxxxxxxxx',
 		// The channel that should receive notifications / topic updates
 		channel: 'crowdfunding',
 		// Name of the bot that posts messages
